@@ -1,149 +1,145 @@
 <!DOCTYPE html>
-<html>
-<head>
-	<title>Jeremy's Comics</title>
-	<style type="text/css">
-		body {
-			width: 1000px;
-			margin: auto;
-			background-color: #4c565e;
-			color: #FFFFFF;
-		}
-	</style>
-</head>
-<body>
-	<!-- load jquery locally and the local cross-domain access hack -->
-	<script type="text/javascript" src="jquery.js"></script>
-	<script type="text/javascript" src="jquery.xdomainajax.js"></script>
-	<script type="text/javascript">
-	// for debug
-	var saved;
-	// sites are ordered on the page based on how they're ordered here.
-	var sites = new Array();
-	sites.push({
-		name : 'Dilbert',
-		url : 'http://www.dilbert.com',
-		getter : function(div, data){
-			var relative = $('.STR_Image > a > img', data.responseText).attr('src');
-			$(div).html('Dilbert:<br /><img src="http://www.dilbert.com/'+relative+'"/><br /><br />');
-		}
-	});
-	sites.push({
-		name : 'Foxtrot',
-		url : 'http://www.foxtrot.com',
-		getter : function(div, data){
-			$(div).html('Foxtrot:<br />'+$('#comic', data.responseText).html()+"<br /><br />");
-		}
-	});
-	sites.push({
-		name : 'Frazz',
-		url : 'http://www.gocomics.com/frazz/?ref=comics',
-		getter : function(div, data){
-			var image = $('img[class=strip]:first', data.responseText).attr('src');
-			$(div).html('Frazz:<br /><img src="'+image+'"/><br /><br />');
-		}
-	});
-	sites.push({
-		name : 'Bunny',
-		url : 'http://www.bunny-comic.com/',
-		getter : function(div, data){
-			var title = $('#striptitle', data.responseText).text();
-			// ugly; navigate to first <a>, then explicitly move to next <a> and get <img> there.
-			var collection = $('img:first', $('#strip > a:first', data.responseText).next())
-			var image = 'http://www.bunny-comic.com/'+collection.attr('src');
-			var sub = collection.attr('title');
-			// sub already has a <br /> in it
-			$(div).html('Bunny:<br />'+title+'<br />'+sub+'<br /><img src="'+image+'"/><br /><br />');
-		}
-	});
-	sites.push({
-		name : 'Megatokyo',
-		url : 'http://www.megatokyo.com/',
-		getter : function(div, data){
-			var relative = $('#strip img', data.responseText).attr('src');
-			$(div).html('Megatokyo:<br /><img src="http://www.megatokyo.com/'+relative+'"/><br /><br />');
-		}
-	});
-	sites.push({
-		name : 'Penny Arcade',
-		url : 'http://www.penny-arcade.com/comic',
-		getter : function(div, data){
-			var image = $('div.post:first > img', data.responseText);
-			$(div).html('Penny Arcade:<br />'+image.attr('alt')+'<br /><img src="'+image.attr('src')+'"/><br /><br />');
-		}
-	});
-	sites.push({
-		name : 'Least I Could Do',
-		url : 'http://leasticoulddo.com/',
-		getter : function(div, data){
-			$(div).html('Least I Could Do:<br /><img src="'+$('#comic > img', data.responseText).attr('src')+'"/><br /><br />');
-		}
-	});
-	sites.push({
-		name : 'PHD Comics',
-		url : 'http://www.phdcomics.com/comics.php',
-		getter : function(div, data){
-			var image;
-			$('img', data.responseText).each(function(){
-				if ($(this).attr('src').indexOf('archive/phd') != -1){
-					image = $(this).attr('src');
-				}
-			});
-			$(div).html('PHD Comics:<br /><img src="'+image+'"/><br /><br />');
-		}
-	});
-	sites.push({
-		name : 'VG Cats',
-		url : 'http://www.vgcats.com/comics/',
-		getter : function(div, data){
-			var image;
-			$('img', data.responseText).each(function(){
-				if ($(this).attr('src').indexOf('images') == 0){
-					image = $(this).attr('src');
-				}
-			});
-			$(div).html('VG Cats:<br /><img src="http://www.vgcats.com/comics/'+image+'"/><br /><br />');
-		}
-	});
-	sites.push({
-		name : 'Super Effective',
-		url : 'http://www.vgcats.com/super/',
-		getter : function(div, data){
-			var image;
-			$('img', data.responseText).each(function(){
-				if ($(this).attr('src').indexOf('images') == 0){
-					image = $(this).attr('src');
-				}
-			});
-			$(div).html('Super Effective:<br /><img src="http://www.vgcats.com/super/'+image+'"/><br /><br />');
-		}
-	});
-
-	// create an anonymous temporary function to call getter() with the appropriate arguments
-	function compose_success(div, site){
-		return function(data){
-			site.getter(div, data);
-		};
-	}
-	
-	$(document).ready(function(){
-		// error logging gets shoved into the list below
-		$("#errors").ajaxError(function(event, request, settings){
-			$(this).append("<li>Error requesting " + settings.url + "</li>");
+	<html>
+	<head>
+		<title>Jeremy's Comics</title>
+		<style type="text/css">
+			body {
+				width: 1000px;
+				margin: auto;
+				background-color: #4c565e;
+				color: #FFFFFF;
+			}
+		</style>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	</head>
+	<body>
+		<!-- load jquery locally and the local cross-domain access hack -->
+		<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="jquery.xdomainajax.js"></script>
+		<script type="text/javascript">
+		// for debug
+		var saved;
+		// sites are ordered on the page based on how they're ordered here.
+		var sites = new Array();
+		sites.push({
+			name : 'Dilbert',
+			url : 'http://www.dilbert.com',
+			getter : function(div, data){
+				var relative = $('.STR_Image > a > img', data.responseText).attr('src');
+				$(div).html('Dilbert:<br /><img src="http://www.dilbert.com/'+relative+'"/><br /><br />');
+			}
 		});
-
-		// for every site, spawn off an asynchronous request to download the page
-		// and process it
-		for (var i in sites){
-			var site = sites[i];
-			$("#comics").append("<div id=\"comic"+i+"\">Fetching "+site.name+"</div>");
-			$.get(site.url, compose_success('#comic'+i, site));
+		sites.push({
+			name : 'Foxtrot',
+			url : 'http://www.foxtrot.com',
+			getter : function(div, data){
+				var src = $('div.entry > a > img', data.responseText)[0].src.replace('-318x149', '');
+				$(div).html('Foxtrot:<br /><img src="'+src+'"/><br /><br />');
+			}
+		});
+		sites.push({
+			name : 'Frazz',
+			url : 'http://www.gocomics.com/frazz/?ref=comics',
+			getter : function(div, data){
+				var image = $('img[class=strip]:first', data.responseText).attr('src');
+				$(div).html('Frazz:<br /><img src="'+image+'"/><br /><br />');
+			}
+		});
+		sites.push({
+			name : 'Megatokyo',
+			url : 'http://www.megatokyo.com/',
+			getter : function(div, data){
+				var relative = $('#strip img', data.responseText).attr('src');
+				$(div).html('Megatokyo:<br /><img src="http://www.megatokyo.com/'+relative+'"/><br /><br />');
+			}
+		});
+		sites.push({
+			name : 'Penny Arcade',
+			url : 'http://www.penny-arcade.com/comic',
+			getter : function(div, data){
+				var image = $('div#comicFrame > a > img', data.responseText);
+				$(div).html('Penny Arcade:<br />'+image.attr('alt')+'<br /><img src="'+image.attr('src')+'"/><br /><br />');
+			}
+		});
+		sites.push({
+			name : 'Least I Could Do',
+			all : function(div){ 
+				$.get('http://leasticoulddo.com/', function(data){ 
+					var url = $('#feature-comic', data.responseText).attr('href');
+					$.get(url, function(data){
+						$(div).html('Least I Could Do:<br /><img src="'+$('#comic-img > img', data.responseText).attr('src')+'"/><br /><br />');
+					});
+				});
+			}
+		});
+		sites.push({
+			name : 'PHD Comics',
+			url : 'http://www.phdcomics.com/comics.php',
+			getter : function(div, data){
+				var image;
+				$('img', data.responseText).each(function(){
+					if ($(this).attr('src').indexOf('archive/phd') != -1){
+						image = $(this).attr('src');
+					}
+				});
+				$(div).html('PHD Comics:<br /><img src="'+image+'"/><br /><br />');
+			}
+		});
+		sites.push({
+			name : 'VG Cats',
+			url : 'http://www.vgcats.com/comics/',
+			getter : function(div, data){
+				var image;
+				$('img', data.responseText).each(function(){
+					if ($(this).attr('src').indexOf('images') == 0){
+						image = $(this).attr('src');
+					}
+				});
+				$(div).html('VG Cats:<br /><img src="http://www.vgcats.com/comics/'+image+'"/><br /><br />');
+			}
+		});
+		sites.push({
+			name : 'Super Effective',
+			url : 'http://www.vgcats.com/super/',
+			getter : function(div, data){
+				var image;
+				$('img', data.responseText).each(function(){
+					if ($(this).attr('src').indexOf('images') == 0){
+						image = $(this).attr('src');
+					}
+				});
+				$(div).html('Super Effective:<br /><img src="http://www.vgcats.com/super/'+image+'"/><br /><br />');
+			}
+		});
+	
+		// create an anonymous temporary function to call getter() with the appropriate arguments
+		function compose_success(div, site){
+			return function(data){
+				site.getter(div, data);
+			};
 		}
-	});
-	</script>
-	<div><ul id="errors" /></div>
-	<div id="title"><strong>Comics:</strong><br></div>
-	<div id="comics" />
-</body>
-</html>
-
+		
+		$(document).ready(function(){
+			// error logging gets shoved into the list below
+			$("#errors").ajaxError(function(event, request, settings){
+				$(this).append("<li>Error requesting " + settings.url + "</li>");
+			});
+	
+			// for every site, spawn off an asynchronous request to download the page
+			// and process it
+			for (var i in sites){
+				var site = sites[i];
+				$("#comics").append("<div id=\"comic"+i+"\">Fetching "+site.name+"</div>");
+				if (typeof site.url !== "undefined"){
+					$.get(site.url, compose_success('#comic'+i, site));
+				}else{
+					site.all('#comic'+i);
+				}
+			}
+		});
+		</script>
+		<div><ul id="errors" /></div>
+		<div id="title"><strong>Comics:</strong><br></div>
+		<div id="comics" />
+	</body>
+	</html>
