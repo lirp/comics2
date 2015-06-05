@@ -31,7 +31,7 @@
 			name : 'Foxtrot',
 			all : function(div){
 				$.ajax({
-					url: 'https://api.import.io/store/data/b741d878-720d-4d65-8f32-41a4a005d0bf/_query?' +
+					url : 'https://api.import.io/store/data/b741d878-720d-4d65-8f32-41a4a005d0bf/_query?' +
 						'input/webpage/url=http%3A%2F%2Fwww.foxtrot.com%2F&_user=02485b91-0592-4f2a-969f-510ce20ea130' +
 						'&_apikey=RI%2B%2BPKmYVI%2FFG1BvjDCBdzjrdonkcvPY2f%2FfEH5%2BtwwwuhPIwsmWtqjEjs87%2BKFs4ooOn9QC1kV8aD0VI1QblQ%3D%3D',
 					dataType: 'json',
@@ -47,11 +47,14 @@
 			name : 'xkcd',
 			all : function(div) {
 				$.ajax({
-					url : "https://www.kimonolabs.com/api/2900c7ms?apikey=AiTQypB6vHJm3VemAWkwk9wmsaQmpDMo",
-					dataType : "jsonp",
+					url : 'https://api.import.io/store/data/7a92ebe1-2ee6-42f7-b472-9ce672146595/_query?' +
+						'input/webpage/url=http%3A%2F%2Fxkcd.com%2F&_user=02485b91-0592-4f2a-969f-510ce20ea130' +
+						'&_apikey=02485b91-0592-4f2a-969f-510ce20ea130%3ARI%2B%2BPKmYVI%2FFG1BvjDCBdzjrdonkcvPY2f%2FfEH5%2BtwwwuhPIwsmWtqjEjs87%2BKFs4ooOn9QC1kV8aD0VI1QblQ%3D%3D',
+					dataType : "json",
+					type: 'get',
 					success : function(data) {
-						var comic = data.results.page[0].comic;
-						$(div).html('xkcd:<br />'+comic.alt+'<br /><img src="'+comic.src+'"/><br />'+comic.title+'<br /><br />');
+						var result = data.results[0];
+						$(div).html('xkcd:<br />'+result['comic/_alt']+'<br /><img src="'+result['comic']+'"/><br />'+result['comic/_title']+'<br /><br />');
 					}
 				});
 			}
