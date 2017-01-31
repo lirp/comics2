@@ -75,19 +75,19 @@
 				$(div).html('Megatokyo:<br /><img src="http://www.megatokyo.com/'+relative+'"/><br /><br />');
 			}
 		});
-		sites.push({
-			name : 'Penny Arcade',
-			all : function(div) {
-				$.ajax({
-					url : "https://www.kimonolabs.com/api/ay3okncy?apikey=AiTQypB6vHJm3VemAWkwk9wmsaQmpDMo",
-					dataType : "jsonp",
-					success : function(data) {
-						var comic = data.results.page[0].comic;
-						$(div).html('Penny Arcade:<br />'+comic.alt+'<br /><img src="'+comic.src+'"/><br /><br />');
-					}
-				});
-			}
-		});
+//		sites.push({
+//			name : 'Penny Arcade',
+//			all : function(div) {
+//				$.ajax({
+//					url : "https://www.kimonolabs.com/api/ay3okncy?apikey=AiTQypB6vHJm3VemAWkwk9wmsaQmpDMo",
+//					dataType : "jsonp",
+//					success : function(data) {
+//						var comic = data.results.page[0].comic;
+//						$(div).html('Penny Arcade:<br />'+comic.alt+'<br /><img src="'+comic.src+'"/><br /><br />');
+//					}
+//				});
+//			}
+//		});
 		sites.push({
 			name : 'Least I Could Do',
 			all : function(div){ 
