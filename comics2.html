@@ -61,9 +61,9 @@
 		});
 		sites.push({
 			name : 'Frazz',
-			url : 'http://www.gocomics.com/frazz/?ref=comics',
+			url : 'http://www.gocomics.com/frazz/',
 			getter : function(div, responseText){
-				var image = $('img[class=strip]:first', responseText).attr('src');
+				var image = $('.item-comic-image:first > img', responseText).attr('src');
 				$(div).html('Frazz:<br /><img src="'+image+'"/><br /><br />');
 			}
 		});
@@ -101,14 +101,11 @@
 		});
 		sites.push({
 			name : 'PHD Comics',
-			url : 'http://www.phdcomics.com/comics.php',
+			url : 'http://phdcomics.com',
 			getter : function(div, responseText){
-				var image;
-				$('img', responseText).each(function(){
-					if ($(this).attr('src').indexOf('archive/phd') != -1){
-						image = $(this).attr('src');
-					}
-				});
+				var pos1 = responseText.indexOf('archive/phd');
+				var pos2 = responseText.indexOf('.gif', pos1);
+				var image = 'http://phdcomics.com/comics/' + responseText.substr(pos1, pos2 - pos1) + '.gif';
 				$(div).html('PHD Comics:<br /><img src="'+image+'"/><br /><br />');
 			}
 		});
