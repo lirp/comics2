@@ -13,10 +13,12 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	</head>
 	<body>
-		<!-- load jquery locally and the local cross-domain access hack -->
-		<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="jquery.xdomainajax.js"></script>
+		<script type="text/javascript" src="jquery-3.2.1.min.js"></script>
 		<script type="text/javascript">
+		var saved;
+		function get_proxy(site, chain) {
+			$.getJSON('http://www.whateverorigin.org/get?url=' + encodeURIComponent(site) + '&callback=?', chain);
+		}
 		// sites are ordered on the page based on how they're ordered here.
 		var sites = new Array();
 		sites.push({
@@ -29,36 +31,28 @@
 		});
 		sites.push({
 			name : 'Foxtrot',
-			all : function(div){
-				$.ajax({
-					url : 'https://api.import.io/store/data/b741d878-720d-4d65-8f32-41a4a005d0bf/_query?' +
-						'input/webpage/url=http%3A%2F%2Fwww.foxtrot.com%2F&_user=02485b91-0592-4f2a-969f-510ce20ea130' +
-						'&_apikey=RI%2B%2BPKmYVI%2FFG1BvjDCBdzjrdonkcvPY2f%2FfEH5%2BtwwwuhPIwsmWtqjEjs87%2BKFs4ooOn9QC1kV8aD0VI1QblQ%3D%3D',
-					dataType: 'json',
-					type: 'get',
-					success: function(response){
-							var src = response.results[0].attachment_image_thumb_image.replace('-318x149', '');
-							$(div).html('Foxtrot:<br /><img src="'+src+'"/><br /><br />');
-						}
-					});
+			url : 'http://www.foxtrot.com',
+			getter : function(div, responseText){
+				var src = $('img', responseText)[2]['src'].replace('-318x149', '');
+				$(div).html('Foxtrot:<br /><img src="'+src+'"/><br /><br />');
 			}
 		});
-		sites.push({
-			name : 'xkcd',
-			all : function(div) {
-				$.ajax({
-					url : 'https://api.import.io/store/data/7a92ebe1-2ee6-42f7-b472-9ce672146595/_query?' +
-						'input/webpage/url=http%3A%2F%2Fxkcd.com%2F&_user=02485b91-0592-4f2a-969f-510ce20ea130' +
-						'&_apikey=02485b91-0592-4f2a-969f-510ce20ea130%3ARI%2B%2BPKmYVI%2FFG1BvjDCBdzjrdonkcvPY2f%2FfEH5%2BtwwwuhPIwsmWtqjEjs87%2BKFs4ooOn9QC1kV8aD0VI1QblQ%3D%3D',
-					dataType : "json",
-					type: 'get',
-					success : function(data) {
-						var result = data.results[0];
-						$(div).html('xkcd:<br />'+result['comic/_alt']+'<br /><img src="'+result['comic']+'"/><br />'+result['comic/_title']+'<br /><br />');
-					}
-				});
-			}
-		});
+//		sites.push({
+//			name : 'xkcd',
+//			all : function(div) {
+//				$.ajax({
+//					url : 'https://api.import.io/store/data/7a92ebe1-2ee6-42f7-b472-9ce672146595/_query?' +
+//						'input/webpage/url=http%3A%2F%2Fxkcd.com%2F&_user=02485b91-0592-4f2a-969f-510ce20ea130' +
+//						'&_apikey=02485b91-0592-4f2a-969f-510ce20ea130%3ARI%2B%2BPKmYVI%2FFG1BvjDCBdzjrdonkcvPY2f%2FfEH5%2BtwwwuhPIwsmWtqjEjs87%2BKFs4ooOn9QC1kV8aD0VI1QblQ%3D%3D',
+//					dataType : "json",
+//					type: 'get',
+//					success : function(data) {
+//						var result = data.results[0];
+//						$(div).html('xkcd:<br />'+result['comic/_alt']+'<br /><img src="'+result['comic']+'"/><br />'+result['comic/_title']+'<br /><br />');
+//					}
+//				});
+//			}
+//		});
 		sites.push({
 			name : 'Frazz',
 			url : 'http://www.gocomics.com/frazz/',
@@ -89,12 +83,20 @@
 //			}
 //		});
 		sites.push({
+			name : 'Camp Comic',
+			url : 'http://campcomic.com/comic/',
+			getter : function(div, responseText){
+				var src = $('div#comic img', responseText)[0]['src'];
+				$(div).html('Camp Comic:<br /><img src="'+src+'"/><br /><br />');
+			}
+		});
+		sites.push({
 			name : 'Least I Could Do',
 			all : function(div){ 
-				$.get('http://leasticoulddo.com/', function(data){ 
-					var url = $('#feature-comic', data.responseText).attr('href');
-					$.get(url, function(data){
-						$(div).html('Least I Could Do:<br /><img src="'+$('#comic-img > img', data.responseText).attr('src')+'"/><br /><br />');
+				get_proxy('http://leasticoulddo.com/', function(data){ 
+					var url = $('#feature-comic', data.contents).attr('href');
+					get_proxy(url, function(data){
+						$(div).html('Least I Could Do:<br /><img src="'+$('#comic-img > img', data.contents).attr('src')+'"/><br /><br />');
 					});
 				});
 			}
@@ -136,21 +138,10 @@
 			}
 		});
 
-		function write_failure(div, site, textStatus, errorThrown){
-			$('#errors').append("<li>Error requesting " + site.name + ": " + textStatus + ", " + errorThrown + "</li>");
-			$(div).html('');
-		}
-	
 		// create an anonymous temporary function to call getter() with the appropriate arguments
 		function compose_success(div, site){
-			return function(data, textStatus, jqXHR){
-				site.getter(div, data.responseText);
-			};
-		}
-
-		function compose_failure(div, site){
-			return function(jqXHR, textStatus, errorThrown){
-				write_failure(div, site, textStatus, errorThrown);
+			return function(data){
+				site.getter(div, data.contents);
 			};
 		}
 		
@@ -161,13 +152,7 @@
 				var site = sites[i];
 				$("#comics").append("<div id=\"comic"+i+"\">Fetching "+site.name+"</div>");
 				if (typeof site.url !== "undefined"){
-					var request = $.ajax({
-						url: site.url,
-						type: 'GET',
-						success: compose_success('#comic'+i, site),
-						error: compose_failure('#comic'+i, site)
-					});
-					site.request = request;
+					get_proxy(site.url, compose_success('#comic'+i, site));
 				}else{
 					site.all('#comic'+i);
 				}
