@@ -17,7 +17,7 @@
 		<script type="text/javascript">
 		var saved;
 		function get_proxy(site, chain) {
-			$.getJSON('http://www.whateverorigin.org/get?url=' + encodeURIComponent(site) + '&callback=?', chain);
+			$.getJSON('https://whateverorigin.herokuapp.com/get?url=' + encodeURIComponent(site) + '&callback=?', chain);
 		}
 		// sites are ordered on the page based on how they're ordered here.
 		var sites = new Array();
