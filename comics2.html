@@ -39,13 +39,13 @@
 		});
 		sites.push({
 			name : 'xkcd',
-			url : 'http://xkcd.com',
-			getter : function(div, responseText){
-				var img = $('div#comic img', responseText)[0];
-				var src = 'https://' + img['src'].replace(/.*\/\//, '');
-				var alt = img['alt'];
-				var title = img['title'];
-				$(div).html('xkcd:<br />' + alt + '<br /><img src="'+src+'"/><br />' + title + '<br /><br />');
+			all : function(div){ 
+				$.getJSON('https://cors-anywhere.herokuapp.com/https://xkcd.com/info.0.json', function(data){ 
+					var src = data.img;
+					var alt = data.alt;
+					var title = data.safe_title;
+					$(div).html('xkcd:<br />' + alt + '<br /><img src="'+src+'"/><br />' + title + '<br /><br />');
+				});
 			}
 		});
 		sites.push({
@@ -57,26 +57,14 @@
 			}
 		});
 		sites.push({
-			name : 'Megatokyo',
-			url : 'http://www.megatokyo.com/',
-			getter : function(div, responseText){
-				var relative = $('#strip img', responseText).attr('src');
-				$(div).html('Megatokyo:<br /><img src="http://www.megatokyo.com/'+relative+'"/><br /><br />');
+			name : 'Penny Arcade',
+			all : function(div) {
+				$.get("https://cors-anywhere.herokuapp.com/https://www.penny-arcade.com/comic", function(data) {
+					var comic = $('div#comicFrame img', data)[0];
+					$(div).html('Penny Arcade:<br />'+comic.alt+'<br /><img src="'+comic.src+'" width="'+comic.width+'"/><br /><br />');
+				});
 			}
 		});
-//		sites.push({
-//			name : 'Penny Arcade',
-//			all : function(div) {
-//				$.ajax({
-//					url : "https://www.kimonolabs.com/api/ay3okncy?apikey=AiTQypB6vHJm3VemAWkwk9wmsaQmpDMo",
-//					dataType : "jsonp",
-//					success : function(data) {
-//						var comic = data.results.page[0].comic;
-//						$(div).html('Penny Arcade:<br />'+comic.alt+'<br /><img src="'+comic.src+'"/><br /><br />');
-//					}
-//				});
-//			}
-//		});
 		sites.push({
 			name : 'Camp Comic',
 			url : 'http://campcomic.com/comic/',
@@ -104,6 +92,15 @@
 				var pos2 = responseText.indexOf('.gif', pos1);
 				var image = 'http://phdcomics.com/comics/' + responseText.substr(pos1, pos2 - pos1) + '.gif';
 				$(div).html('PHD Comics:<br /><img src="'+image+'"/><br /><br />');
+			}
+		});
+		sites.push({
+			name : 'Megatokyo',
+			all : function(div){
+				$.get("https://cors-anywhere.herokuapp.com/https://megatokyo.com", function(data) {
+					var relative = $('#strip img', data).attr('src');
+					$(div).html('Megatokyo:<br /><img src="http://www.megatokyo.com/'+relative+'"/><br /><br />');
+				});
 			}
 		});
 		sites.push({
