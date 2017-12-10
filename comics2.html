@@ -83,7 +83,7 @@
 				get_proxy('http://leasticoulddo.com/', function(data){ 
 					var url = $('#latest-comic', data.contents).attr('href');
 					get_proxy(url, function(data){
-						$(div).html('Least I Could Do:<br /><img src="'+$('img.comic', data.contents).attr('src')+'"/><br /><br />');
+						$(div).html('Least I Could Do:<br /><img src="'+$('div.comic-wrap > img:first', data.contents).attr('src')+'"/><br /><br />');
 					});
 				});
 			}
