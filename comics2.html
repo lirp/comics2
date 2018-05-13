@@ -53,14 +53,6 @@
 		}
 	});
 	sites.push({
-		name : 'Frazz',
-		url : 'http://www.gocomics.com/frazz/',
-		getter : function(div, responseText){
-			var image = $('.gc-deck--cta-0 img', responseText).attr('src');
-			$(div).html('Frazz:<br /><img src="'+image+'"/><br /><br />');
-		}
-	});
-	sites.push({
 		name : 'Penny Arcade',
 		all : function(div) {
 			$.get("https://cors-anywhere.herokuapp.com/https://www.penny-arcade.com/comic", function(data) {
