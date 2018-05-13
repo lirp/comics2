@@ -1,163 +1,163 @@
 <!DOCTYPE html>
-	<html>
-	<head>
-		<title>Jeremy's Comics</title>
-		<style type="text/css">
-			html, body {
-				height: 100%;
-				background-color: #4c565e;
-				color: #FFFFFF;
-			}
-			img {
-				display: block;
-				max-height: 100%;
-				max-width: 100%;
-			}
-		</style>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	</head>
-	<body>
-		<script type="text/javascript" src="jquery-3.2.1.min.js"></script>
-		<script type="text/javascript">
-		var saved;
-		function get_proxy(site, chain) {
-			$.getJSON('https://whateverorigin.herokuapp.com/get?url=' + encodeURIComponent(site) + '&callback=?', chain);
+<html>
+<head>
+	<title>Jeremy's Comics</title>
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			background-color: #4c565e;
+			color: #FFFFFF;
 		}
-		// sites are ordered on the page based on how they're ordered here.
-		var sites = new Array();
-		sites.push({
-			name : 'Dilbert',
-			url : 'http://dilbert.com',
-			getter : function(div, responseText){
-				var path = $('div[class=img-comic-container]:first > a > img', responseText).attr('src');
-				$(div).html('Dilbert:<br /><img src="'+path+'"/><br /><br />');
-			}
-		});
-		sites.push({
-			name : 'FoxTrot',
-			url : 'http://www.foxtrot.com',
-			getter : function(div, responseText){
-				var src = $('img.attachment-image-thumb', responseText)[0]['src'].replace('-318x149', '');
-				$(div).html('Foxtrot:<br /><img src="'+src+'"/><br /><br />');
-			}
-		});
-		sites.push({
-			name : 'xkcd',
-			all : function(div){ 
-				$.getJSON('https://cors-anywhere.herokuapp.com/https://xkcd.com/info.0.json', function(data){ 
-					var src = data.img;
-					var alt = data.alt;
-					var title = data.safe_title;
-					$(div).html('xkcd:<br />' + title + '<br /><img src="'+src+'"/>' + alt + '<br /><br />');
-				});
-			}
-		});
-		sites.push({
-			name : 'Frazz',
-			url : 'http://www.gocomics.com/frazz/',
-			getter : function(div, responseText){
-				var image = $('.gc-deck--cta-0 img', responseText).attr('src');
-				$(div).html('Frazz:<br /><img src="'+image+'"/><br /><br />');
-			}
-		});
-		sites.push({
-			name : 'Penny Arcade',
-			all : function(div) {
-				$.get("https://cors-anywhere.herokuapp.com/https://www.penny-arcade.com/comic", function(data) {
-					var comic = $('div#comicFrame img', data)[0];
-					$(div).html('Penny Arcade:<br />'+comic.alt+'<br /><img src="'+comic.src+'" width="'+comic.width+'"/><br /><br />');
-				});
-			}
-		});
-		sites.push({
-			name : 'Camp Comic',
-			url : 'http://campcomic.com/comic/',
-			getter : function(div, responseText){
-				var src = $('div#comic img', responseText)[0]['src'];
-				$(div).html('Camp Comic:<br /><img src="'+src+'"/><br /><br />');
-			}
-		});
-		sites.push({
-			name : 'Least I Could Do',
-			all : function(div){ 
-				get_proxy('http://leasticoulddo.com/', function(data){ 
-					var url = $('#latest-comic', data.contents).attr('href');
-					get_proxy(url, function(data){
-						$(div).html('Least I Could Do:<br /><img src="'+$('div.comic-wrap > img:first', data.contents).attr('src')+'"/><br /><br />');
-					});
-				});
-			}
-		});
-		sites.push({
-			name : 'PHD Comics',
-			url : 'http://phdcomics.com',
-			getter : function(div, responseText){
-				var pos0 = responseText.indexOf('twitter:image');
-				var pos1 = responseText.indexOf('archive/phd', pos0);
-				var pos2 = responseText.indexOf('.gif', pos1);
-				var image = 'http://phdcomics.com/comics/' + responseText.substr(pos1, pos2 - pos1) + '.gif';
-				$(div).html('PHD Comics:<br /><img src="'+image+'"/><br /><br />');
-			}
-		});
-		sites.push({
-			name : 'Megatokyo',
-			all : function(div){
-				$.get("https://cors-anywhere.herokuapp.com/https://megatokyo.com", function(data) {
-					var relative = $('#strip img', data).attr('src');
-					$(div).html('Megatokyo:<br /><img src="http://www.megatokyo.com/'+relative+'"/><br /><br />');
-				});
-			}
-		});
-		sites.push({
-			name : 'VG Cats',
-			url : 'http://www.vgcats.com/comics/',
-			getter : function(div, responseText){
-				var image;
-				$('img', responseText).each(function(){
-					if ($(this).attr('src').indexOf('images') == 0){
-						image = $(this).attr('src');
-					}
-				});
-				$(div).html('VG Cats:<br /><img src="http://www.vgcats.com/comics/'+image+'"/><br /><br />');
-			}
-		});
-		sites.push({
-			name : 'Super Effective',
-			url : 'http://www.vgcats.com/super/',
-			getter : function(div, responseText){
-				var image;
-				$('img', responseText).each(function(){
-					if ($(this).attr('src').indexOf('images') == 0){
-						image = $(this).attr('src');
-					}
-				});
-				$(div).html('Super Effective:<br /><img src="http://www.vgcats.com/super/'+image+'"/><br /><br />');
-			}
-		});
-
-		// create an anonymous temporary function to call getter() with the appropriate arguments
-		function compose_success(div, site){
-			return function(data){
-				site.getter(div, data.contents);
-			};
+		img {
+			display: block;
+			max-height: 100%;
+			max-width: 100%;
 		}
-		
-		$(document).ready(function(){
-			// for every site, spawn off an asynchronous request to download the page
-			// and process it
-			for (var i in sites){
-				var site = sites[i];
-				$("#comics").append("<div id=\"comic"+i+"\">Fetching "+site.name+"</div>");
-				if (typeof site.url !== "undefined"){
-					get_proxy(site.url, compose_success('#comic'+i, site));
-				}else{
-					site.all('#comic'+i);
+	</style>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+	<script type="text/javascript" src="jquery-3.2.1.min.js"></script>
+	<script type="text/javascript">
+	var saved;
+	function get_proxy(site, chain) {
+		$.getJSON('https://whateverorigin.herokuapp.com/get?url=' + encodeURIComponent(site) + '&callback=?', chain);
+	}
+	// sites are ordered on the page based on how they're ordered here.
+	var sites = new Array();
+	sites.push({
+		name : 'Dilbert',
+		url : 'http://dilbert.com',
+		getter : function(div, responseText){
+			var path = $('div[class=img-comic-container]:first > a > img', responseText).attr('src');
+			$(div).html('Dilbert:<br /><img src="'+path+'"/><br /><br />');
+		}
+	});
+	sites.push({
+		name : 'FoxTrot',
+		url : 'http://www.foxtrot.com',
+		getter : function(div, responseText){
+			var src = $('img.attachment-image-thumb', responseText)[0]['src'].replace('-318x149', '');
+			$(div).html('Foxtrot:<br /><img src="'+src+'"/><br /><br />');
+		}
+	});
+	sites.push({
+		name : 'xkcd',
+		all : function(div){ 
+			$.getJSON('https://cors-anywhere.herokuapp.com/https://xkcd.com/info.0.json', function(data){ 
+				var src = data.img;
+				var alt = data.alt;
+				var title = data.safe_title;
+				$(div).html('xkcd:<br />' + title + '<br /><img src="'+src+'"/>' + alt + '<br /><br />');
+			});
+		}
+	});
+	sites.push({
+		name : 'Frazz',
+		url : 'http://www.gocomics.com/frazz/',
+		getter : function(div, responseText){
+			var image = $('.gc-deck--cta-0 img', responseText).attr('src');
+			$(div).html('Frazz:<br /><img src="'+image+'"/><br /><br />');
+		}
+	});
+	sites.push({
+		name : 'Penny Arcade',
+		all : function(div) {
+			$.get("https://cors-anywhere.herokuapp.com/https://www.penny-arcade.com/comic", function(data) {
+				var comic = $('div#comicFrame img', data)[0];
+				$(div).html('Penny Arcade:<br />'+comic.alt+'<br /><img src="'+comic.src+'" width="'+comic.width+'"/><br /><br />');
+			});
+		}
+	});
+	sites.push({
+		name : 'Camp Comic',
+		url : 'http://campcomic.com/comic/',
+		getter : function(div, responseText){
+			var src = $('div#comic img', responseText)[0]['src'];
+			$(div).html('Camp Comic:<br /><img src="'+src+'"/><br /><br />');
+		}
+	});
+	sites.push({
+		name : 'Least I Could Do',
+		all : function(div){ 
+			get_proxy('http://leasticoulddo.com/', function(data){ 
+				var url = $('#latest-comic', data.contents).attr('href');
+				get_proxy(url, function(data){
+					$(div).html('Least I Could Do:<br /><img src="'+$('div.comic-wrap > img:first', data.contents).attr('src')+'"/><br /><br />');
+				});
+			});
+		}
+	});
+	sites.push({
+		name : 'PHD Comics',
+		url : 'http://phdcomics.com',
+		getter : function(div, responseText){
+			var pos0 = responseText.indexOf('twitter:image');
+			var pos1 = responseText.indexOf('archive/phd', pos0);
+			var pos2 = responseText.indexOf('.gif', pos1);
+			var image = 'http://phdcomics.com/comics/' + responseText.substr(pos1, pos2 - pos1) + '.gif';
+			$(div).html('PHD Comics:<br /><img src="'+image+'"/><br /><br />');
+		}
+	});
+	sites.push({
+		name : 'Megatokyo',
+		all : function(div){
+			$.get("https://cors-anywhere.herokuapp.com/https://megatokyo.com", function(data) {
+				var relative = $('#strip img', data).attr('src');
+				$(div).html('Megatokyo:<br /><img src="http://www.megatokyo.com/'+relative+'"/><br /><br />');
+			});
+		}
+	});
+	sites.push({
+		name : 'VG Cats',
+		url : 'http://www.vgcats.com/comics/',
+		getter : function(div, responseText){
+			var image;
+			$('img', responseText).each(function(){
+				if ($(this).attr('src').indexOf('images') == 0){
+					image = $(this).attr('src');
 				}
+			});
+			$(div).html('VG Cats:<br /><img src="http://www.vgcats.com/comics/'+image+'"/><br /><br />');
+		}
+	});
+	sites.push({
+		name : 'Super Effective',
+		url : 'http://www.vgcats.com/super/',
+		getter : function(div, responseText){
+			var image;
+			$('img', responseText).each(function(){
+				if ($(this).attr('src').indexOf('images') == 0){
+					image = $(this).attr('src');
+				}
+			});
+			$(div).html('Super Effective:<br /><img src="http://www.vgcats.com/super/'+image+'"/><br /><br />');
+		}
+	});
+
+	// create an anonymous temporary function to call getter() with the appropriate arguments
+	function compose_success(div, site){
+		return function(data){
+			site.getter(div, data.contents);
+		};
+	}
+	
+	$(document).ready(function(){
+		// for every site, spawn off an asynchronous request to download the page
+		// and process it
+		for (var i in sites){
+			var site = sites[i];
+			$("#comics").append("<div id=\"comic"+i+"\">Fetching "+site.name+"</div>");
+			if (typeof site.url !== "undefined"){
+				get_proxy(site.url, compose_success('#comic'+i, site));
+			}else{
+				site.all('#comic'+i);
 			}
-		});
-		</script>
-		<div><ul id="errors" /></div>
-		<div id="title"><strong>Comics:</strong><br></div>
-		<div id="comics" />
-	</body>
-	</html>
+		}
+	});
+	</script>
+	<div><ul id="errors" /></div>
+	<div id="title"><strong>Comics:</strong><br></div>
+	<div id="comics" />
+</body>
+</html>
